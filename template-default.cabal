@@ -7,11 +7,17 @@ description:         Declaring instances of the @Default@ type class has always
                      thought is required, and the instance will automatically
                      be corrected when the definition of the data type changes
                      (say, to add more arguments to the constructor). Usage
-                     looks like this:
+                     looks like this, for example:
                      .
                      > (-# LANGUAGE TemplateHaskell #-)
                      > import Data.Default.TH
-                     > deriveDefault ''MyFancyTypeName
+                     > data List a = Nil | Cons a (List a)
+                     > deriveDefault ''List
+                     .
+                     This example results in the following instance:
+                     .
+                     > instance Data.Default.Default (List a_ad2) where
+                     >   Data.Default.def = Nil
 
 homepage:            https://github.com/haskell-pkg-janitors/template-default
 license:             BSD3
