@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Data.Default.TH (deriveDefault) where
 
@@ -19,7 +20,11 @@ constraints tcn ts = nub . concat <$> mapM (constraint tcn) ts
 constraint :: Name -> Type -> Q [Pred]
 constraint tcn t@(VarT n)       = return [ClassP ''Default [t]]
 constraint tcn t@(ConT n)       = return [ClassP ''Default [t]]
+#if MIN_VERSION_template_haskell(2,8,0)
+constraint tcn   (SigT t StarT) = constraint tcn t
+#else
 constraint tcn   (SigT t StarK) = constraint tcn t
+#endif
 constraint tcn t@(AppT _ _)     = case normalize t of
 	(ArrowT, [_, r])        -> constraint tcn r
 	(ListT, [t])            -> return []
