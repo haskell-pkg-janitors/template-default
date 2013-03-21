@@ -31,4 +31,4 @@ cabal-version:       >=1.8
 
 library
   exposed-modules:     Data.Default.TH
-  build-depends:       base >= 3 && < 6, data-default, template-haskell >= 2.4 && < 2.8
+  build-depends:       base >= 3 && < 6, data-default, template-haskell >= 2.4 && < 2.9
