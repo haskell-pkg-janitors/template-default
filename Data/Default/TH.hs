@@ -18,8 +18,13 @@ constraints :: Name -> [Type] -> Q [Pred]
 constraints tcn ts = nub . concat <$> mapM (constraint tcn) ts
 
 constraint :: Name -> Type -> Q [Pred]
+#if MIN_VERSION_template_haskell(2,10,0)
+constraint tcn t@(VarT n)       = return [AppT (ConT ''Default) t]
+constraint tcn t@(ConT n)       = return [AppT (ConT ''Default) t]
+#else
 constraint tcn t@(VarT n)       = return [ClassP ''Default [t]]
 constraint tcn t@(ConT n)       = return [ClassP ''Default [t]]
+#endif
 #if MIN_VERSION_template_haskell(2,8,0)
 constraint tcn   (SigT t StarT) = constraint tcn t
 #else
@@ -30,7 +35,11 @@ constraint tcn t@(AppT _ _)     = case normalize t of
 	(ListT, [t])            -> return []
 	(TupleT n, ts)          -> constraints tcn ts
 	(ConT n, ts) | n == tcn -> return [] -- don't demand a Default instance while building the Default instance
+#if MIN_VERSION_template_haskell(2,10,0)
+	_ -> return [AppT (ConT ''Default) t]
+#else
 	_ -> return [ClassP ''Default [t]]
+#endif
 constraint tcn t = fail $ "I got surprised by the type " ++ pprint t ++ " as a constructor argument while trying to derive a Default instance for " ++ pprint tcn
 
 normalize = normalize' [] where
